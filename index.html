@@ -2,645 +2,512 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lofi Earnings Hub</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Earnings Hub — Lo-Fi Prototype</title>
   <style>
-    :root {
-      --bg:        #1a1a2e;
-      --surface:   #16213e;
-      --card:      #0f3460;
-      --accent:    #e94560;
-      --muted:     #a8a8b3;
-      --text:      #eaeaea;
-      --green:     #6bcb77;
-      --yellow:    #ffd166;
-      --purple:    #c77dff;
-    }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: 'Segoe UI', sans-serif;
+      background: #F0EDF7;
+      color: #1E1B4B;
       min-height: 100vh;
-      padding: 2rem;
     }
 
-    /* Ambient grain overlay */
-    body::before {
-      content: '';
+    /* Layout */
+    .sidebar {
       position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .wrapper { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; }
-
-    /* Header */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2.5rem;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .logo-dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 10px var(--accent);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.4; }
-    }
-
-    .logo h1 {
-      font-size: 1.2rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-    }
-
-    .logo h1 span { color: var(--accent); }
-
-    .header-meta {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--muted);
-      text-align: right;
-      line-height: 1.6;
-    }
-
-    /* Stats row */
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 14px;
-      padding: 1.4rem 1.5rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .stat-card::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: var(--line-color, var(--accent));
-      border-radius: 2px;
-    }
-
-    .stat-card.green  { --line-color: var(--green); }
-    .stat-card.yellow { --line-color: var(--yellow); }
-    .stat-card.purple { --line-color: var(--purple); }
-    .stat-card.red    { --line-color: var(--accent); }
-
-    .stat-label {
-      font-size: 0.72rem;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 0.5rem;
-    }
-
-    .stat-value {
-      font-family: 'Space Mono', monospace;
-      font-size: 1.7rem;
-      font-weight: 700;
-      line-height: 1;
-    }
-
-    .stat-value.green  { color: var(--green); }
-    .stat-value.yellow { color: var(--yellow); }
-    .stat-value.purple { color: var(--purple); }
-    .stat-value.red    { color: var(--accent); }
-
-    .stat-change {
-      font-size: 0.75rem;
-      margin-top: 0.5rem;
-      color: var(--muted);
-    }
-
-    .stat-change .up   { color: var(--green); }
-    .stat-change .down { color: var(--accent); }
-
-    /* Main grid */
-    .main-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    /* Chart card */
-    .card {
-      background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 14px;
-      padding: 1.5rem;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .card-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-    }
-
-    .badge {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.65rem;
-      padding: 0.2rem 0.6rem;
-      border-radius: 99px;
-      background: rgba(233,69,96,0.15);
-      color: var(--accent);
-      border: 1px solid rgba(233,69,96,0.3);
-    }
-
-    /* Bar chart */
-    .bar-chart {
-      display: flex;
-      align-items: flex-end;
-      gap: 0.6rem;
-      height: 140px;
-    }
-
-    .bar-group {
-      flex: 1;
+      top: 0; left: 0;
+      width: 220px; height: 100vh;
+      background: #120720;
+      padding: 24px 16px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 0.4rem;
-      height: 100%;
+      gap: 6px;
     }
 
-    .bars {
-      display: flex;
-      align-items: flex-end;
-      gap: 3px;
-      height: 100%;
-      width: 100%;
+    .sidebar .logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 24px;
+      letter-spacing: 1px;
     }
 
-    .bar {
-      flex: 1;
-      border-radius: 4px 4px 0 0;
-      transition: opacity 0.2s;
+    .nav-item {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #9CA3AF;
+      cursor: pointer;
+    }
+    .nav-item.active {
+      background: #7C3AED22;
+      color: #C084FC;
+      font-weight: 600;
     }
 
-    .bar:hover { opacity: 0.75; }
-
-    .bar-label {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--muted);
+    .main {
+      margin-left: 220px;
+      padding: 32px 36px;
+      max-width: 1100px;
     }
 
-    /* Source list */
-    .source-list { display: flex; flex-direction: column; gap: 0.8rem; }
-
-    .source-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
+    /* Page header */
+    .page-header {
+      margin-bottom: 28px;
     }
-
-    .source-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
+    .page-header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1E1B4B;
     }
-
-    .source-name {
-      font-size: 0.8rem;
-      flex: 1;
-    }
-
-    .source-amount {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .source-bar-track {
-      width: 100%;
-      height: 3px;
-      background: rgba(255,255,255,0.06);
-      border-radius: 99px;
+    .page-header p {
+      font-size: 13px;
+      color: #6B7280;
       margin-top: 4px;
     }
 
-    .source-bar-fill {
-      height: 100%;
-      border-radius: 99px;
-    }
-
-    /* Bottom row */
-    .bottom-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 1rem;
-    }
-
-    /* Transaction list */
-    .tx-list { display: flex; flex-direction: column; gap: 0.7rem; }
-
-    .tx-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.6rem 0;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-    }
-
-    .tx-item:last-child { border-bottom: none; }
-
-    .tx-icon {
-      width: 30px; height: 30px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.85rem;
-      margin-right: 0.7rem;
-      flex-shrink: 0;
-    }
-
-    .tx-info { flex: 1; }
-    .tx-name { font-size: 0.8rem; font-weight: 500; }
-    .tx-date { font-size: 0.68rem; color: var(--muted); }
-
-    .tx-amount {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.8rem;
-    }
-
-    .tx-amount.pos { color: var(--green); }
-    .tx-amount.neg { color: var(--accent); }
-
-    /* Mini ring chart */
-    .ring-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-    }
-
-    .ring-labels { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; }
-
-    .ring-label-row {
+    /* Savings widget */
+    .savings-banner {
+      background: #120720;
+      border-radius: 16px;
+      padding: 28px 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 0.75rem;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
     }
-
-    .ring-label-dot {
-      width: 7px; height: 7px;
+    .savings-banner::after {
+      content: '';
+      position: absolute;
+      right: -40px; top: -40px;
+      width: 200px; height: 200px;
+      background: #7C3AED22;
       border-radius: 50%;
-      margin-right: 0.5rem;
-      flex-shrink: 0;
+    }
+    .savings-banner .left h2 {
+      font-size: 13px;
+      color: #C084FC;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .savings-banner .left .amount {
+      font-size: 48px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+    }
+    .savings-banner .left .subtitle {
+      font-size: 13px;
+      color: #9CA3AF;
+      margin-top: 6px;
+    }
+    .savings-breakdown {
+      display: flex;
+      gap: 20px;
+    }
+    .breakdown-item {
+      text-align: center;
+      background: #ffffff0f;
+      border-radius: 10px;
+      padding: 14px 20px;
+      min-width: 100px;
+    }
+    .breakdown-item .val {
+      font-size: 20px;
+      font-weight: 700;
+      color: #C084FC;
+    }
+    .breakdown-item .lbl {
+      font-size: 11px;
+      color: #9CA3AF;
+      margin-top: 4px;
     }
 
-    .ring-label-name { flex: 1; color: var(--muted); }
-    .ring-label-pct  { font-family: 'Space Mono', monospace; font-size: 0.7rem; }
+    /* Section */
+    .section {
+      margin-bottom: 28px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .section-header h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1E1B4B;
+    }
+    .section-header span {
+      font-size: 12px;
+      color: #7C3AED;
+      font-weight: 600;
+      cursor: pointer;
+    }
 
-    /* Footer */
-    footer {
-      margin-top: 2rem;
+    /* Referral card */
+    .referral-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 24px 28px;
+      border: 1px solid #E9E0FF;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .referral-card .ref-left h4 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1E1B4B;
+      margin-bottom: 6px;
+    }
+    .referral-card .ref-left p {
+      font-size: 12px;
+      color: #6B7280;
+      max-width: 340px;
+      line-height: 1.6;
+    }
+    .referral-stats {
+      display: flex;
+      gap: 24px;
+    }
+    .ref-stat {
       text-align: center;
-      font-size: 0.7rem;
-      color: rgba(168,168,179,0.4);
-      font-family: 'Space Mono', monospace;
+    }
+    .ref-stat .val {
+      font-size: 22px;
+      font-weight: 800;
+      color: #7C3AED;
+    }
+    .ref-stat .lbl {
+      font-size: 11px;
+      color: #9CA3AF;
+      margin-top: 2px;
+    }
+    .ref-link-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .ref-link-box {
+      background: #F3EEFF;
+      border: 1px dashed #C084FC;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      color: #7C3AED;
+      font-family: monospace;
+      flex: 1;
+    }
+    .btn {
+      background: #7C3AED;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-outline {
+      background: transparent;
+      color: #7C3AED;
+      border: 1.5px solid #7C3AED;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Action grid */
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .action-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 20px;
+      border: 1px solid #E9E0FF;
+      position: relative;
+      transition: box-shadow 0.15s;
+    }
+    .action-card:hover {
+      box-shadow: 0 4px 16px #7C3AED18;
+    }
+    .action-card.completed {
+      border-color: #D1FAE5;
+      background: #F0FDF4;
+    }
+    .action-card .emoji {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+    .action-card h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1E1B4B;
+      margin-bottom: 5px;
+    }
+    .action-card p {
+      font-size: 11px;
+      color: #6B7280;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+    .action-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .reward-tag {
+      font-size: 13px;
+      font-weight: 800;
+      color: #7C3AED;
+    }
+    .action-card.completed .reward-tag {
+      color: #10B981;
+    }
+    .status-tag {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
+    .status-tag.done {
+      background: #D1FAE5;
+      color: #047857;
+    }
+    .status-tag.todo {
+      background: #F3EEFF;
+      color: #7C3AED;
+    }
+    .status-tag.monthly {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
+    /* Quest reset notice */
+    .reset-notice {
+      font-size: 11px;
+      color: #9CA3AF;
+      margin-top: -8px;
+      margin-bottom: 14px;
+    }
+    .reset-notice span {
+      color: #7C3AED;
+      font-weight: 600;
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: #E9E0FF;
+      margin: 4px 0 16px;
     }
   </style>
 </head>
 <body>
-<div class="wrapper">
 
-  <!-- Header -->
-  <header>
-    <div class="logo">
-      <div class="logo-dot"></div>
-      <h1>lofi <span>earnings</span> hub</h1>
-    </div>
-    <div class="header-meta">
-      April 2026 &nbsp;/&nbsp; Q2<br>
-      last synced 3 min ago
-    </div>
-  </header>
-
-  <!-- Stat cards -->
-  <div class="stats">
-    <div class="stat-card green">
-      <div class="stat-label">Total Revenue</div>
-      <div class="stat-value green">$24,830</div>
-      <div class="stat-change"><span class="up">+12.4%</span> vs last month</div>
-    </div>
-    <div class="stat-card yellow">
-      <div class="stat-label">Net Profit</div>
-      <div class="stat-value yellow">$18,210</div>
-      <div class="stat-change"><span class="up">+8.1%</span> vs last month</div>
-    </div>
-    <div class="stat-card purple">
-      <div class="stat-label">Active Clients</div>
-      <div class="stat-value purple">34</div>
-      <div class="stat-change"><span class="up">+3</span> new this month</div>
-    </div>
-    <div class="stat-card red">
-      <div class="stat-label">Expenses</div>
-      <div class="stat-value red">$6,620</div>
-      <div class="stat-change"><span class="down">+5.2%</span> vs last month</div>
-    </div>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">Ceartas</div>
+    <div class="nav-item">Dashboard</div>
+    <div class="nav-item">Threats</div>
+    <div class="nav-item">Takedowns</div>
+    <div class="nav-item active">Earnings Hub</div>
+    <div class="nav-item">Settings</div>
   </div>
 
-  <!-- Main grid -->
-  <div class="main-grid">
-    <!-- Bar chart -->
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Monthly Revenue</span>
-        <span class="badge">2026</span>
+  <!-- Main content -->
+  <div class="main">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <h1>Earnings Hub</h1>
+      <p>Earn money back on your subscription by promoting Ceartas and using the platform.</p>
+    </div>
+
+    <!-- Savings banner -->
+    <div class="savings-banner">
+      <div class="left">
+        <h2>Saved This Month</h2>
+        <div class="amount">$18.50</div>
+        <div class="subtitle">Applied automatically to your next invoice</div>
       </div>
-      <div class="bar-chart">
-        <!-- Each bar-group = one month -->
-        <div class="bar-group">
-          <div class="bars">
-            <div class="bar" style="height:55%; background:rgba(107,203,119,0.7);"></div>
-            <div class="bar" style="height:30%; background:rgba(233,69,96,0.5);"></div>
-          </div>
-          <span class="bar-label">Jan</span>
+      <div class="savings-breakdown">
+        <div class="breakdown-item">
+          <div class="val">$12.00</div>
+          <div class="lbl">From referrals</div>
         </div>
-        <div class="bar-group">
-          <div class="bars">
-            <div class="bar" style="height:65%; background:rgba(107,203,119,0.7);"></div>
-            <div class="bar" style="height:35%; background:rgba(233,69,96,0.5);"></div>
-          </div>
-          <span class="bar-label">Feb</span>
+        <div class="breakdown-item">
+          <div class="val">$4.50</div>
+          <div class="lbl">From quests</div>
         </div>
-        <div class="bar-group">
-          <div class="bars">
-            <div class="bar" style="height:70%; background:rgba(107,203,119,0.7);"></div>
-            <div class="bar" style="height:40%; background:rgba(233,69,96,0.5);"></div>
-          </div>
-          <span class="bar-label">Mar</span>
-        </div>
-        <div class="bar-group">
-          <div class="bars">
-            <div class="bar" style="height:100%; background:rgba(107,203,119,0.9);"></div>
-            <div class="bar" style="height:45%; background:rgba(233,69,96,0.5);"></div>
-          </div>
-          <span class="bar-label">Apr</span>
-        </div>
-        <div class="bar-group">
-          <div class="bars">
-            <div class="bar" style="height:55%; background:rgba(107,203,119,0.3);"></div>
-            <div class="bar" style="height:30%; background:rgba(233,69,96,0.2);"></div>
-          </div>
-          <span class="bar-label">May</span>
-        </div>
-        <div class="bar-group">
-          <div class="bars">
-            <div class="bar" style="height:50%; background:rgba(107,203,119,0.3);"></div>
-            <div class="bar" style="height:28%; background:rgba(233,69,96,0.2);"></div>
-          </div>
-          <span class="bar-label">Jun</span>
-        </div>
-        <div class="bar-group">
-          <div class="bars">
-            <div class="bar" style="height:45%; background:rgba(107,203,119,0.15);"></div>
-            <div class="bar" style="height:25%; background:rgba(233,69,96,0.1);"></div>
-          </div>
-          <span class="bar-label">Jul</span>
-        </div>
-      </div>
-      <!-- Legend -->
-      <div style="display:flex; gap:1.5rem; margin-top:1rem;">
-        <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.7rem; color:var(--muted);">
-          <div style="width:10px;height:10px;border-radius:3px;background:rgba(107,203,119,0.7);"></div> Revenue
-        </div>
-        <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.7rem; color:var(--muted);">
-          <div style="width:10px;height:10px;border-radius:3px;background:rgba(233,69,96,0.5);"></div> Expenses
+        <div class="breakdown-item">
+          <div class="val">$2.00</div>
+          <div class="lbl">From onboarding</div>
         </div>
       </div>
     </div>
 
-    <!-- Income sources -->
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Income Sources</span>
+    <!-- Referral engine -->
+    <div class="section">
+      <div class="section-header">
+        <h3>Referral Engine</h3>
       </div>
-      <div class="source-list">
-        <div>
-          <div class="source-item">
-            <div class="source-dot" style="background:var(--green);"></div>
-            <span class="source-name">Freelance</span>
-            <span class="source-amount">$11,200</span>
+      <div class="referral-card">
+        <div class="ref-left">
+          <h4>Earn 15% of every signup you drive</h4>
+          <p>Share your unique link. Every creator or agency that subscribes through it earns you 15% of their monthly fee — automatically applied to your invoice.</p>
+          <div class="ref-link-row">
+            <div class="ref-link-box">ceartas.io/ref/milan-t</div>
+            <button class="btn">Copy Link</button>
+            <button class="btn-outline">Share</button>
           </div>
-          <div class="source-bar-track"><div class="source-bar-fill" style="width:72%;background:var(--green);"></div></div>
         </div>
-        <div>
-          <div class="source-item">
-            <div class="source-dot" style="background:var(--purple);"></div>
-            <span class="source-name">Products</span>
-            <span class="source-amount">$6,430</span>
+        <div class="referral-stats">
+          <div class="ref-stat">
+            <div class="val">24</div>
+            <div class="lbl">Link clicks</div>
           </div>
-          <div class="source-bar-track"><div class="source-bar-fill" style="width:41%;background:var(--purple);"></div></div>
-        </div>
-        <div>
-          <div class="source-item">
-            <div class="source-dot" style="background:var(--yellow);"></div>
-            <span class="source-name">Affiliate</span>
-            <span class="source-amount">$4,700</span>
+          <div class="ref-stat">
+            <div class="val">3</div>
+            <div class="lbl">Signups</div>
           </div>
-          <div class="source-bar-track"><div class="source-bar-fill" style="width:30%;background:var(--yellow);"></div></div>
-        </div>
-        <div>
-          <div class="source-item">
-            <div class="source-dot" style="background:var(--accent);"></div>
-            <span class="source-name">Ads</span>
-            <span class="source-amount">$2,500</span>
+          <div class="ref-stat">
+            <div class="val">$12</div>
+            <div class="lbl">Earned</div>
           </div>
-          <div class="source-bar-track"><div class="source-bar-fill" style="width:16%;background:var(--accent);"></div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Bottom row -->
-  <div class="bottom-grid">
-
-    <!-- Recent transactions -->
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Recent Transactions</span>
-      </div>
-      <div class="tx-list">
-        <div class="tx-item">
-          <div class="tx-icon" style="background:rgba(107,203,119,0.1);">🧑‍💻</div>
-          <div class="tx-info">
-            <div class="tx-name">Client — Apex Studio</div>
-            <div class="tx-date">Apr 12, 2026</div>
-          </div>
-          <div class="tx-amount pos">+$3,200</div>
-        </div>
-        <div class="tx-item">
-          <div class="tx-icon" style="background:rgba(233,69,96,0.1);">☁️</div>
-          <div class="tx-info">
-            <div class="tx-name">AWS Hosting</div>
-            <div class="tx-date">Apr 11, 2026</div>
-          </div>
-          <div class="tx-amount neg">−$148</div>
-        </div>
-        <div class="tx-item">
-          <div class="tx-icon" style="background:rgba(199,125,255,0.1);">📦</div>
-          <div class="tx-info">
-            <div class="tx-name">Product Sale × 4</div>
-            <div class="tx-date">Apr 10, 2026</div>
-          </div>
-          <div class="tx-amount pos">+$920</div>
-        </div>
-        <div class="tx-item">
-          <div class="tx-icon" style="background:rgba(255,209,102,0.1);">🔗</div>
-          <div class="tx-info">
-            <div class="tx-name">Affiliate Payout</div>
-            <div class="tx-date">Apr 9, 2026</div>
-          </div>
-          <div class="tx-amount pos">+$640</div>
-        </div>
-        <div class="tx-item">
-          <div class="tx-icon" style="background:rgba(233,69,96,0.1);">🎨</div>
-          <div class="tx-info">
-            <div class="tx-name">Figma Subscription</div>
-            <div class="tx-date">Apr 8, 2026</div>
-          </div>
-          <div class="tx-amount neg">−$45</div>
         </div>
       </div>
     </div>
 
-    <!-- Goals -->
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Monthly Goals</span>
+    <!-- Onboarding actions -->
+    <div class="section">
+      <div class="section-header">
+        <h3>Onboarding Actions</h3>
+        <span>2 / 4 completed</span>
       </div>
-      <div style="display:flex; flex-direction:column; gap:1.2rem;">
+      <div class="divider"></div>
+      <div class="action-grid">
 
-        <div>
-          <div style="display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:0.4rem;">
-            <span>Revenue target</span>
-            <span style="font-family:'Space Mono',monospace; color:var(--green);">$24.8k / $30k</span>
-          </div>
-          <div style="background:rgba(255,255,255,0.06); border-radius:99px; height:6px;">
-            <div style="width:82%; height:100%; background:var(--green); border-radius:99px;"></div>
+        <div class="action-card completed">
+          <div class="emoji">✅</div>
+          <h4>Complete Your Profile</h4>
+          <p>Fill in your account details so we can better protect you.</p>
+          <div class="action-footer">
+            <div class="reward-tag">+$2.00</div>
+            <div class="status-tag done">Completed</div>
           </div>
         </div>
 
-        <div>
-          <div style="display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:0.4rem;">
-            <span>New clients</span>
-            <span style="font-family:'Space Mono',monospace; color:var(--purple);">3 / 5</span>
-          </div>
-          <div style="background:rgba(255,255,255,0.06); border-radius:99px; height:6px;">
-            <div style="width:60%; height:100%; background:var(--purple); border-radius:99px;"></div>
-          </div>
-        </div>
-
-        <div>
-          <div style="display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:0.4rem;">
-            <span>Expense limit</span>
-            <span style="font-family:'Space Mono',monospace; color:var(--yellow);">$6.6k / $8k</span>
-          </div>
-          <div style="background:rgba(255,255,255,0.06); border-radius:99px; height:6px;">
-            <div style="width:82%; height:100%; background:var(--yellow); border-radius:99px;"></div>
+        <div class="action-card completed">
+          <div class="emoji">📱</div>
+          <h4>Connect a Social Account</h4>
+          <p>Link your X, Instagram, or TikTok to enable auto-enforcement.</p>
+          <div class="action-footer">
+            <div class="reward-tag">+$3.00</div>
+            <div class="status-tag done">Completed</div>
           </div>
         </div>
 
-        <div>
-          <div style="display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:0.4rem;">
-            <span>Savings rate</span>
-            <span style="font-family:'Space Mono',monospace; color:var(--accent);">42% / 50%</span>
+        <div class="action-card">
+          <div class="emoji">👁️</div>
+          <h4>Watch Your First Threat Report</h4>
+          <p>See what we found in your first scan and understand your exposure.</p>
+          <div class="action-footer">
+            <div class="reward-tag">+$2.00</div>
+            <div class="status-tag todo">Not done</div>
           </div>
-          <div style="background:rgba(255,255,255,0.06); border-radius:99px; height:6px;">
-            <div style="width:42%; height:100%; background:var(--accent); border-radius:99px;"></div>
+        </div>
+
+        <div class="action-card">
+          <div class="emoji">🛡️</div>
+          <h4>Submit Your First Takedown</h4>
+          <p>Send your first removal request and see how the process works.</p>
+          <div class="action-footer">
+            <div class="reward-tag">+$3.00</div>
+            <div class="status-tag todo">Not done</div>
           </div>
         </div>
 
       </div>
     </div>
 
-    <!-- Donut / split -->
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Profit Split</span>
+    <!-- Recurring quests -->
+    <div class="section">
+      <div class="section-header">
+        <h3>Monthly Quests</h3>
+        <span>Resets in 18 days</span>
       </div>
-      <div class="ring-wrap">
-        <svg width="110" height="110" viewBox="0 0 110 110">
-          <!-- Background track -->
-          <circle cx="55" cy="55" r="42" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="14"/>
-          <!-- Reinvest 28% -->
-          <circle cx="55" cy="55" r="42" fill="none" stroke="#c77dff" stroke-width="14"
-            stroke-dasharray="73.7 189.7" stroke-dashoffset="0" stroke-linecap="round"/>
-          <!-- Tax 22% -->
-          <circle cx="55" cy="55" r="42" fill="none" stroke="#ffd166" stroke-width="14"
-            stroke-dasharray="57.9 205.5" stroke-dashoffset="-73.7" stroke-linecap="round"/>
-          <!-- Savings 50% -->
-          <circle cx="55" cy="55" r="42" fill="none" stroke="#6bcb77" stroke-width="14"
-            stroke-dasharray="131.9 131.5" stroke-dashoffset="-131.6" stroke-linecap="round"/>
-          <text x="55" y="50" text-anchor="middle" fill="#eaeaea" font-family="Space Mono" font-size="13" font-weight="700">73.3%</text>
-          <text x="55" y="64" text-anchor="middle" fill="#a8a8b3" font-family="Space Grotesk" font-size="8">margin</text>
-        </svg>
+      <div class="reset-notice">Complete these each month to keep earning. Resets on <span>1 May</span>.</div>
+      <div class="action-grid">
 
-        <div class="ring-labels">
-          <div class="ring-label-row">
-            <div class="ring-label-dot" style="background:var(--green);"></div>
-            <span class="ring-label-name">Savings</span>
-            <span class="ring-label-pct" style="color:var(--green);">50%</span>
-          </div>
-          <div class="ring-label-row">
-            <div class="ring-label-dot" style="background:var(--purple);"></div>
-            <span class="ring-label-name">Reinvest</span>
-            <span class="ring-label-pct" style="color:var(--purple);">28%</span>
-          </div>
-          <div class="ring-label-row">
-            <div class="ring-label-dot" style="background:var(--yellow);"></div>
-            <span class="ring-label-name">Tax reserve</span>
-            <span class="ring-label-pct" style="color:var(--yellow);">22%</span>
+        <div class="action-card">
+          <div class="emoji">🐦</div>
+          <h4>Post About Ceartas on X</h4>
+          <p>Share your referral link with your audience and tag @ceartas.</p>
+          <div class="action-footer">
+            <div class="reward-tag">+$3.00</div>
+            <div class="status-tag monthly">Monthly</div>
           </div>
         </div>
+
+        <div class="action-card">
+          <div class="emoji">🔗</div>
+          <h4>Add Ceartas to Your Link in Bio</h4>
+          <p>Let your followers know you're protected. Add your referral link to your bio.</p>
+          <div class="action-footer">
+            <div class="reward-tag">+$2.00</div>
+            <div class="status-tag monthly">Monthly</div>
+          </div>
+        </div>
+
+        <div class="action-card">
+          <div class="emoji">🕵️</div>
+          <h4>Submit a Takedown</h4>
+          <p>Report infringing content and earn a reward for every submission.</p>
+          <div class="action-footer">
+            <div class="reward-tag">+$1.50</div>
+            <div class="status-tag monthly">Monthly</div>
+          </div>
+        </div>
+
+        <div class="action-card">
+          <div class="emoji">🎭</div>
+          <h4>Submit an Impersonation</h4>
+          <p>Report an account impersonating you and earn a reward.</p>
+          <div class="action-footer">
+            <div class="reward-tag">+$1.50</div>
+            <div class="status-tag monthly">Monthly</div>
+          </div>
+        </div>
+
+        <div class="action-card">
+          <div class="emoji">📸</div>
+          <h4>Share Your Dashboard</h4>
+          <p>Screenshot your threat report and post it. Tag @ceartas to verify.</p>
+          <div class="action-footer">
+            <div class="reward-tag">+$4.00</div>
+            <div class="status-tag monthly">Monthly</div>
+          </div>
+        </div>
+
       </div>
     </div>
 
   </div>
-
-  <footer>lofi earnings hub &nbsp;·&nbsp; prototype &nbsp;·&nbsp; 2026</footer>
-
-</div>
 </body>
 </html>
